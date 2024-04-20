@@ -128,6 +128,7 @@ void downloadCertificate() async {
   @override
 Widget build(BuildContext context) {
   return Scaffold(
+    appBar: AppBar(title: Center(child: Text('Result card')),backgroundColor: Colors.blueGrey,),
     body: Padding(
       padding: const EdgeInsets.all(16.0),
       child: SingleChildScrollView(
