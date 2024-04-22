@@ -2,7 +2,7 @@ import 'package:abgsms/landing.dart';
 import 'package:flutter/material.dart';
 import 'login.dart';
 import 'widgets/about.dart';
-import 'widgets/material.dart';
+import 'materials/course.dart';
 
 void main() => runApp(
       MaterialApp(
@@ -11,7 +11,7 @@ void main() => runApp(
         '/load': (context) => Landing(),
         '/login': (context) => LoginPage(),
         '/about': (context) => About(),
-        '/material': (context) => CourseMaterial(),
+        '/material': (context) => CourseMaterials(),
       },
         home: Landing(),
       ),
