@@ -235,6 +235,14 @@ class MyEndDrawer extends StatelessWidget {
               Navigator.pushNamed(context, '/about');
             },
           ),
+           ListTile(
+            title: const Text('Courses'),
+            leading: const Icon(Icons.login),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.pushNamed(context, '/course');
+            },
+          ),
           ListTile(
             title: const Text('Login'),
             leading: const Icon(Icons.login),

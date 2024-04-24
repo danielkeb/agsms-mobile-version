@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
-import './reserv.dart'; // Import PdfViewer class
 
 class MaterialService {
   static Future<List<dynamic>> fetchMaterials(String filter) async {
@@ -41,14 +41,14 @@ class MaterialService {
   }
 }
 
-class CourseMaterials extends StatefulWidget {
-  const CourseMaterials({Key? key}) : super(key: key);
+class PdfMaterials extends StatefulWidget {
+  const PdfMaterials({Key? key}) : super(key: key);
 
   @override
-  State<CourseMaterials> createState() => _CourseMaterialsState();
+  State<PdfMaterials> createState() => _PdfMaterialsState();
 }
 
-class _CourseMaterialsState extends State<CourseMaterials> {
+class _PdfMaterialsState extends State<PdfMaterials> {
   List<dynamic> materials = [];
   String filter = "";
 
@@ -101,7 +101,7 @@ class _CourseMaterialsState extends State<CourseMaterials> {
         MaterialPageRoute(builder: (context) => PdfViewer(pdfUrl: localPath, description: '')),
       );
     } catch (error) {
-      throw new Exception('not found');
+      throw new Exception('Error loading PDF: $error');
     }
   }
 
@@ -150,21 +150,43 @@ class _CourseMaterialsState extends State<CourseMaterials> {
                 itemBuilder: (context, index) {
                   final material = materials[index];
                   return ListTile(
-              leading: Icon(Icons.book),
-              title: Text(material['description'] ?? ''),
-              onTap: () {
-                if (material['filename'] != null) {
-                  loadPDF(material['file']);
-                } else {
-                  print('filename is null');
-                }
-              },
-            );
+                    leading: Icon(Icons.book),
+                    title: Text(material['description'] ?? ''),
+                    onTap: () => loadPDF(material['file']), // Open PDF when tapped
+                  );
                 },
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class PdfViewer extends StatelessWidget {
+  final String pdfUrl;
+  final String description;
+
+  PdfViewer({required this.pdfUrl, required this.description});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("PDF Viewer"),
+      ),
+      body: FutureBuilder<String>(
+        future: Future.value(pdfUrl), // Use Future.value to provide a non-null value
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else {
+            return PDFView(filePath: snapshot.data!);
+          }
+        },
       ),
     );
   }
