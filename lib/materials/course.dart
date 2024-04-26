@@ -1,9 +1,8 @@
+// import 'package:abgsms/materials/reserv.dart';
+import 'package:abgsms/materials/reserv.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'dart:io';
-import 'package:path_provider/path_provider.dart';
-import './reserv.dart'; // Import PdfViewer class
 
 class MaterialService {
   static Future<List<dynamic>> fetchMaterials(String filter) async {
@@ -13,30 +12,17 @@ class MaterialService {
 
       List<dynamic> filteredMaterials = allMaterials;
 
-      if (filter.trim() != "") {
+      if (filter.trim()!= "") {
         filteredMaterials = filteredMaterials.where((material) =>
-            material['description']?.toLowerCase()?.contains(filter.toLowerCase()) ?? false ||
-            material['gradeLevel']?.any((grade) => grade['grade'] == filter) ?? false ||
+            material['description']?.toLowerCase()?.contains(filter.toLowerCase())?? false ||
+            material['gradeLevel']?.any((grade) => grade['grade'] == filter)?? false ||
             material['gradeLevel']?.any((grade) =>
-                grade['subject']?.any((subject) => subject['name']?.toLowerCase() == filter.toLowerCase()) ?? false) ?? false).toList();
+                grade['subject']?.any((subject) => subject['name']?.toLowerCase() == filter.toLowerCase())?? false)?? false).toList();
       }
 
       return filteredMaterials;
     } catch (error) {
       throw Exception("Error fetching materials: $error");
-    }
-  }
-
-  static Future<String> loadPDF(String url) async {
-    try {
-      var response = await http.get(Uri.parse(url));
-
-      var dir = await getApplicationDocumentsDirectory();
-      File file = File("${dir.path}/data.pdf");
-      await file.writeAsBytes(response.bodyBytes, flush: true);
-      return file.path;
-    } catch (error) {
-      throw Exception("Error loading PDF: $error");
     }
   }
 }
@@ -54,7 +40,7 @@ class _CourseMaterialsState extends State<CourseMaterials> {
 
   void handleFilterChange(String? value) {
     setState(() {
-      filter = value ?? "";
+      filter = value?? "";
     });
     fetchMaterials();
   }
@@ -85,25 +71,23 @@ class _CourseMaterialsState extends State<CourseMaterials> {
       );
     }
   }
+  Future<void> _handleOpenMaterial(String filename, String description) async {
+  final url = 'http://localhost:3333/$filename';
+  final response = await http.get(Uri.parse(url));
+  final contentType = response.headers['content-type'];
+  final data = response.bodyBytes;
 
-  Future<void> loadPDF(String? filename) async {
-    if (filename == null) {
-      // Handle the case where filename is null
-      print("filename is null");
-      return;
-    }
-
-    try {
-      String localPath = await MaterialService.loadPDF('http://localhost:3333/$filename');
-      print(localPath);
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => PdfViewer(pdfUrl: localPath, description: '')),
-      );
-    } catch (error) {
-      throw new Exception('not found');
-    }
+  if (contentType == 'application/pdf') {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => PdfViewer(data: data, description: description,)),
+    );
+  } else {
+    throw Exception('Invalid content type: $contentType');
   }
+}
+
+ 
 
   @override
   void initState() {
@@ -150,16 +134,16 @@ class _CourseMaterialsState extends State<CourseMaterials> {
                 itemBuilder: (context, index) {
                   final material = materials[index];
                   return ListTile(
-              leading: Icon(Icons.book),
-              title: Text(material['description'] ?? ''),
-              onTap: () {
-                if (material['filename'] != null) {
-                  loadPDF(material['file']);
-                } else {
-                  print('filename is null');
-                }
-              },
-            );
+                    leading: Icon(Icons.book),
+                    title: Text(material['description']?? ''),
+                    onTap: () {
+                      if (material['file']!= null) {
+                        _handleOpenMaterial(material['file'], material['description']);
+                      } else {
+                        print('filename is null');
+                      }
+                    },
+                  );
                 },
               ),
             ),

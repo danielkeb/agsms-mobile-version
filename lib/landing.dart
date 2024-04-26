@@ -57,14 +57,14 @@ class LargeChild extends ScreenChild {
         children: <Widget>[
           FractionallySizedBox(
             alignment: Alignment.centerRight,
-            widthFactor:.6,
-            child: Image.asset("assets/images/cartoon.png", scale:.85),
+            widthFactor:.4,
+            child: Image.asset("assets/images/cartoon.png", scale:.65),
           ),
           FractionallySizedBox(
             alignment: Alignment.centerLeft,
-            widthFactor:.6,
+            widthFactor:.4,
             child: Padding(
-              padding: EdgeInsets.only(left: 48),
+              padding: EdgeInsets.only(left: 28),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -72,7 +72,7 @@ class LargeChild extends ScreenChild {
                   Text(
                     "We Create creative Mind!",
                     style: TextStyle(
-                      fontSize: 60,
+                      fontSize: 30,
                       fontWeight: FontWeight.bold,
                       fontFamily: "Montserrat-Regular",
                       color: Color(0xFF111111),
@@ -82,14 +82,14 @@ class LargeChild extends ScreenChild {
                     text: TextSpan(
                       text: "and Disciplined genarations ",
                       style: TextStyle(
-                        fontSize: 60,
+                        fontSize: 50,
                         color: Color(0xFF1B5E20),
                       ),
                       children: [
                         TextSpan(
                           text: "🐱",
                           style: TextStyle(
-                            fontSize: 60,
+                            fontSize: 50,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -134,7 +134,7 @@ class SmallChild extends ScreenChild {
             Text(
               "We Create creative Mind!",
               style: TextStyle(
-                fontSize: 35,
+                fontSize: 30,
                fontWeight: FontWeight.bold,
                 fontFamily: "Montserrat-Regular",
                 color: Color(0xFF111111),
@@ -144,14 +144,14 @@ class SmallChild extends ScreenChild {
               text: TextSpan(
                 text: "and Disciplined Genarations ",
                 style: TextStyle(
-                  fontSize: 25,
+                  fontSize: 20,
                   color: Color(0xFF455A64),
                 ),
                 children: [
                   TextSpan(
                     text: "👨‍🎓",
                     style: TextStyle(
-                      fontSize: 40,
+                      fontSize: 35,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -169,11 +169,7 @@ class SmallChild extends ScreenChild {
               child: Image.asset("assets/images/cartoon.png", scale: 1),
             ),
             SizedBox(
-              height: 32,
-            ),
-            Search(),
-            SizedBox(
-              height: 30,
+              height: 220,
             ),
           ],
         ),
@@ -192,31 +188,31 @@ class MyEndDrawer extends StatelessWidget {
           DrawerHeader(
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage('images/bgdrawer.jpg'),
+                image: AssetImage('assets/images/bgdrawer.jpg'),
                 fit: BoxFit.cover,
               ),
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.end,
-              children: const [
-                SizedBox(height: 16),
-                Text(
-                  'Daniel kebede',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                SizedBox(height: 8),
-                Text(
-                  'dkklearningservice.com',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.white,
-                  ),
-                ),
-              ],
+              // children: const [
+              //   SizedBox(height: 16),
+              //   Text(
+              //     'Daniel kebede',
+              //     style: TextStyle(
+              //       fontSize: 15,
+              //       fontWeight: FontWeight.bold,
+              //       color: Colors.white,
+              //     ),
+              //   ),
+              //   SizedBox(height: 8),
+              //   Text(
+              //     'dkklearningservice.com',
+              //     style: TextStyle(
+              //       fontSize: 14,
+              //       color: Colors.white,
+              //     ),
+              //   ),
+              // ],
             ),
           ),
           ListTile(
@@ -233,14 +229,6 @@ class MyEndDrawer extends StatelessWidget {
             onTap: () {
               Navigator.pop(context);
               Navigator.pushNamed(context, '/about');
-            },
-          ),
-           ListTile(
-            title: const Text('Courses'),
-            leading: const Icon(Icons.login),
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.pushNamed(context, '/course');
             },
           ),
           ListTile(

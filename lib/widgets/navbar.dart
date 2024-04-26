@@ -21,34 +21,36 @@ class NavBar extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
-          Row(
-            children: <Widget>[
-              Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(18),
-                  gradient: LinearGradient(
-                    colors: [
-                      Color(0xFFA5D6A7),
-                      Color(0xFF388E3C),
-                    ],
-                    begin: Alignment.bottomRight,
-                    end: Alignment.topLeft,
+          Expanded(
+            child: Row(
+              children: <Widget>[
+                Container(
+                  width: 60,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(18),
+                    gradient: LinearGradient(
+                      colors: [
+                        Color(0xFFA5D6A7),
+                        Color(0xFF388E3C),
+                      ],
+                      begin: Alignment.bottomRight,
+                      end: Alignment.topLeft,
+                    ),
+                  ),
+                  child: Center(
+                    child: Text(
+                      "🏫",
+                      style: TextStyle(fontSize: 20, color: Colors.white),
+                    ),
                   ),
                 ),
-                child: Center(
-                  child: Text(
-                    "🏫",
-                    style: TextStyle(fontSize: 30, color: Colors.white),
-                  ),
+                SizedBox(
+                  width: 7,
                 ),
-              ),
-              SizedBox(
-                width: 16,
-              ),
-              Text("Welcome to ABG", style: TextStyle(fontSize: 20))
-            ],
+                Text("Welcome to ABG", style: TextStyle(fontSize: 20))
+              ],
+            ),
           ),
           // Responsive Layout
           if (!ResponsiveLayout.isSmallScreen(context))

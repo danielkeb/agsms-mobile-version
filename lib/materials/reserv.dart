@@ -1,50 +1,35 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
-import 'package:flutter_pdfview/flutter_pdfview.dart';
-import 'course.dart'; // Import CourseMaterials class
+import 'package:pdfx/pdfx.dart';
 
 class PdfViewer extends StatefulWidget {
-  final String pdfUrl;
+  final Uint8List data;
   final String description;
 
-  PdfViewer({required this.pdfUrl, required this.description});
+  const PdfViewer({Key? key, required this.data, required this.description}) : super(key: key);
 
   @override
   _PdfViewerState createState() => _PdfViewerState();
 }
 
 class _PdfViewerState extends State<PdfViewer> {
-  String? localPath;
+  late PdfController _controller;
 
   @override
   void initState() {
     super.initState();
-
-    // Load PDF from the provided URL
-    loadPDF();
-  }
-
-  Future<void> loadPDF() async {
-    try {
-      final value = await MaterialService.loadPDF(widget.pdfUrl);
-      setState(() {
-        localPath = value;
-      });
-    } catch (error) {
-      // Handle error
-    }
+    _controller = PdfController(document: PdfDocument.openData(widget.data));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.description),
+      appBar: AppBar(title: Text(widget.description),),
+      body: PdfView(
+        scrollDirection: Axis.vertical,
+        controller: _controller,
       ),
-      body: localPath != null
-          ? PDFView(
-              filePath: localPath!,
-            )
-          : Center(child: CircularProgressIndicator()),
     );
   }
 }

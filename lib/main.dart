@@ -4,7 +4,6 @@ import 'login.dart';
 import 'widgets/about.dart';
 import 'materials/course.dart';
 import 'landing.dart';
-import 'materials/pdf_viewer.dart';
 
 void main() {
   runApp(MyApp());

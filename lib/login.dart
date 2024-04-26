@@ -3,7 +3,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'result.dart';
+import 'cert.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -24,57 +24,76 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _passwordController = TextEditingController();
 
   Future<void> _signIn(BuildContext context) async {
-    final String email = _emailController.text.trim();
-    final String password = _passwordController.text.trim();
+  final String email = _emailController.text.trim();
+  final String password = _passwordController.text.trim();
 
-    try {
-      final response = await http.post(
-        Uri.parse('http://localhost:3333/auth/signin'),
-        headers: <String, String>{
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode(<String, String>{
-          'email': email,
-          'password': password,
-        }),
-      );
+  try {
+    final response = await http.post(
+      Uri.parse('http://localhost:3333/auth/signin'),
+      headers: <String, String>{
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode(<String, String>{
+        'email': email,
+        'password': password,
+      }),
+    );
 
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> responseData = jsonDecode(response.body);
-        print('Token: ${responseData['access_token']}');
-        final storage = FlutterSecureStorage();
-        await storage.write(
-            key: 'access_token', value: responseData['access_token']);
-        final now = DateTime.now();
-        final expiryTime = now.add(Duration(minutes: 20));
-        await storage.write(key: 'expiryTime', value: expiryTime.toString());
-        print("Expiry time is now " + expiryTime.toString());
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> responseData = jsonDecode(response.body);
+      print('Token: ${responseData['access_token']}');
+      final storage = FlutterSecureStorage();
+      await storage.write(
+          key: 'access_token', value: responseData['access_token']);
+      final now = DateTime.now();
+      final expiryTime = now.add(Duration(minutes: 20));
+      await storage.write(key: 'expiryTime', value: expiryTime.toString());
+      print("Expiry time is now " + expiryTime.toString());
 
-        // Clear all existing routes and push StudentCertificate as the new root route
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(
-            builder: (context) => StudentCertificate(),
-          ),
-          (route) => false, // Prevents user from going back to previous screens
-       );
-      } else if (response.statusCode == 403) {
-        throw Exception('Incorrect email or password');
-      }
-    } catch (e) {
+      // Show login success message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('$e'),
+          content: Text('Login success'),
+          duration: const Duration(seconds: 3),
+        ),
+      );
+
+      // Clear all existing routes and push StudentCertificate as the new root route
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+          builder: (context) => StudentCertificate(),
+        ),
+        (route) => true, // Prevents user from going back to previous screens
+      );
+    } else if (response.statusCode == 403) {
+      // Show login failed message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Login failed: Incorrect email or password'),
           duration: const Duration(seconds: 3),
         ),
       );
     }
+  } catch (e) {
+    // Show error message
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Error: $e'),
+        duration: const Duration(seconds: 3),
+      ),
+    );
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Login'),),
+      appBar: AppBar(title: Text('Login'),
+      
+      backgroundColor: Color(0xFFA5D6A7),
+      ),
       body: Container(
          decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -256,8 +275,8 @@ class _LoginPageState extends State<LoginPage> {
                         height: 30,
                       ),
                       FadeInUp(
-                        duration: Duration(milliseconds: 1900),
-        child: ElevatedButton(
+                        duration: Duration(milliseconds: 1000),
+                           child: ElevatedButton(
                           onPressed: () async {
                             if (_formKey.currentState!.validate()) {
                               await _signIn(context); // Pass the context here
@@ -276,7 +295,9 @@ class _LoginPageState extends State<LoginPage> {
                           style: TextStyle(
                               color: Color(0xFF455A64))),
                         ),
-                      
+                       SizedBox(
+                        height: 200,
+                      ),
                     ],
                   ),
                 ),

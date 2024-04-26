@@ -1,5 +1,4 @@
 import 'dart:typed_data';
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -117,30 +116,28 @@ class _StudentCertificateState extends State<StudentCertificate> {
                 if (studentData != null) ...[
                   Text(
                     '${studentData?['school_name'] ?? ''} school',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
-                  SizedBox(height: 5),
+                  SizedBox(height: 10),
                   Text(
                     'Grade ${studentData?['grade']['grade'] ?? ''} student card',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
-                  SizedBox(height: 10),
+                  SizedBox(height: 20),
                   Text(
                     'Student Name: ${studentData?['first_name'] ?? ''} ${studentData?['last_name'] ?? ''}',
-                    style: TextStyle(fontSize: 14),
+                    style: TextStyle(fontSize: 16),
                   ),
-                  SizedBox(height: 10),
+                  SizedBox(height: 20),
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: DataTable(
-                      columnSpacing: 20,
-                      dataRowHeight: 30,
                       columns: [
-                        DataColumn(label: Text('Number', style: TextStyle(fontSize: 14))),
-                        DataColumn(label: Text('Subject', style: TextStyle(fontSize: 14))),
-                        DataColumn(label: Text('First Semester', style: TextStyle(fontSize: 14))),
-                        DataColumn(label: Text('Second Semester', style: TextStyle(fontSize: 14))),
-                        DataColumn(label: Text('Average Score (Semester Two)', style: TextStyle(fontSize: 14))),
+                        DataColumn(label: Text('Number')),
+                        DataColumn(label: Text('Subject')),
+                        DataColumn(label: Text('First Semester')),
+                        DataColumn(label: Text('Second Semester')),
+                        DataColumn(label: Text('Average Score (Semester Two)')),
                       ],
                       rows: List.generate(
                         studentData?['grade']['subject'].length ?? 0,
@@ -160,16 +157,17 @@ class _StudentCertificateState extends State<StudentCertificate> {
                               0;
                           final averageScore = (totalScore1 + totalScore2) / 2;
                           return DataRow(cells: [
-                            DataCell(Text('${index + 1}', style: TextStyle(fontSize: 14))),
-                            DataCell(Text('${subject['name']}', style: TextStyle(fontSize: 14))),
-                            DataCell(Text('$totalScore1', style: TextStyle(fontSize: 14))),
-                            DataCell(Text('$totalScore2', style: TextStyle(fontSize: 14))),
-                            DataCell(Text('$averageScore', style: TextStyle(fontSize: 14))),
+                            DataCell(Text('${index + 1}')),
+                            DataCell(Text('${subject['name']}')),
+                            DataCell(Text('$totalScore1')),
+                            DataCell(Text('$totalScore2')),
+                            DataCell(Text('$averageScore')),
                           ]);
                         },
                       ),
                     ),
                   ),
+                  SizedBox(height: 20),
                 ],
               ],
             ),
