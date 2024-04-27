@@ -126,52 +126,54 @@ class SmallChild extends ScreenChild {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      child: Padding(
-        padding: EdgeInsets.all(40),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Text(
-              "We Create creative Mind!",
-              style: TextStyle(
-                fontSize: 30,
-               fontWeight: FontWeight.bold,
-                fontFamily: "Montserrat-Regular",
-                color: Color(0xFF111111),
-              ),
-            ),
-            RichText(
-              text: TextSpan(
-                text: "and Disciplined Genarations ",
+      child: SafeArea(
+        child: Padding(
+          padding: EdgeInsets.all(40),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text(
+                "We Create creative Mind!",
                 style: TextStyle(
-                  fontSize: 20,
-                  color: Color(0xFF455A64),
+                  fontSize: 30,
+                 fontWeight: FontWeight.bold,
+                  fontFamily: "Montserrat-Regular",
+                  color: Color(0xFF111111),
                 ),
-                children: [
-                  TextSpan(
-                    text: "👨‍🎓",
-                    style: TextStyle(
-                      fontSize: 35,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 12.0, top: 20),
-              child: Text("LET'S LEARN TOGETHER"),
-            ),
-            SizedBox(
-              height: 30,
-            ),
-            Center(
-              child: Image.asset("assets/images/cartoon.png", scale: 1),
-            ),
-            SizedBox(
-              height: 220,
-            ),
-          ],
+              RichText(
+                text: TextSpan(
+                  text: "and Disciplined Genarations ",
+                  style: TextStyle(
+                    fontSize: 20,
+                    color: Color(0xFF455A64),
+                  ),
+                  children: [
+                    TextSpan(
+                      text: "👨‍🎓",
+                      style: TextStyle(
+                        fontSize: 35,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 12.0, top: 20),
+                child: Text("LET'S LEARN TOGETHER"),
+              ),
+              SizedBox(
+                height: 30,
+              ),
+              Center(
+                child: Image.asset("assets/images/cartoon.png", scale: 1),
+              ),
+              SizedBox(
+                height: 220,
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -236,7 +238,7 @@ class MyEndDrawer extends StatelessWidget {
             leading: const Icon(Icons.login),
             onTap: () {
               Navigator.pop(context);
-              Navigator.pushNamed(context, '/login');
+              Navigator.pushNamed(context, 'login');
             },
           ),
         ],

@@ -1,11 +1,10 @@
 import 'dart:typed_data';
 import 'dart:ui';
-//import 'package:pdf/pdf.dart';
-import 'package:pdf/widgets.dart' as pw;
-import 'dart:html' as html;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:printing/printing.dart';
+import 'package:pdf/widgets.dart' as pw;
 import 'package:flutter/rendering.dart';
 import 'package:abgsms/authmanager.dart'; // Import AuthManager
 
@@ -16,19 +15,24 @@ class StudentCertificate extends StatefulWidget {
 
 class _StudentCertificateState extends State<StudentCertificate> {
   Map<String, dynamic>? studentData;
+
+  final GlobalKey<State<StatefulWidget>> containerKey = GlobalKey();
+
+
   List<int> secondSemesterSubjectAverages = [];
   int firstSemesterTotal = 0;
   int secondSemesterTotal = 0;
   int secondSemesterTotalAverage = 0;
   int rank = 0;
 
-  final GlobalKey<State<StatefulWidget>> containerKey = GlobalKey();
 
   @override
   void initState() {
     super.initState();
     fetchData();
   }
+
+  
 
   Future<void> fetchData() async {
     try {
@@ -61,54 +65,49 @@ class _StudentCertificateState extends State<StudentCertificate> {
     }
   }
 
-void downloadCertificate() async {
-  final certificate = await _captureCertificate();
-  if (certificate != null) {
+  Future<Uint8List> generateCertificate() async {
     final pdf = pw.Document();
 
-    // Create a Uint8ListImage from the certificate bytes
-    final imageProvider = pw.MemoryImage(certificate);
-
-    // Add certificate content to the PDF document
-    pdf.addPage(
-      pw.Page(
-        build: (context) => pw.Center(
-          child: pw.Column(
-            children: [
-              pw.Text('Certificate', style: pw.TextStyle(fontSize: 24)),
-              pw.SizedBox(height: 20),
-              // Use Uint8ListImage
-              pw.Image(imageProvider),
-            ],
+    pdf.addPage(pw.Page(
+      build: (pw.Context context) {
+        return pw.Center(
+          child: pw.Text(
+            'Certificate',
+            style: pw.TextStyle(fontSize: 24),
           ),
-        ),
-      ),
-    );
+        );
+      },
+    ));
 
-    // Save PDF bytes
-    final pdfBytes = await pdf.save();
-
-    // Create a Blob from PDF bytes
-    final blob = html.Blob([pdfBytes], 'application/pdf');
-
-    // Create object URL from Blob
-    final url = html.Url.createObjectUrlFromBlob(blob);
-
-    // Create an anchor element to trigger download
-    final anchor = html.AnchorElement(href: url)
-      ..style.display = 'none'
-      ..download = 'certificate.pdf';
-
-    // Add anchor element to body and click it programmatically
-    html.document.body!.children.add(anchor);
-    anchor.click();
-
-    // Remove anchor element from body and revoke object URL
-    html.document.body!.children.remove(anchor);
-    html.Url.revokeObjectUrl(url);
+    return pdf.save();
   }
-}
 
+  Future<void> printCertificate() async {
+    final RenderRepaintBoundary boundary =
+        containerKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
+    final image = await boundary.toImage();
+    final byteData = await image.toByteData(format: ImageByteFormat.png);
+    final Uint8List pngBytes = byteData!.buffer.asUint8List();
+
+    Printing.layoutPdf(
+      onLayout: (_) async => await _generatePdf(pngBytes),
+    );
+  }
+
+  Future<Uint8List> _generatePdf(Uint8List pngBytes) async {
+    final pdf = pw.Document();
+
+    pdf.addPage(pw.Page(
+      build: (pw.Context context) {
+        return pw.Image(
+          pw.MemoryImage(pngBytes),
+          width: 500,
+        );
+      },
+    ));
+
+    return pdf.save();
+  }
 
 
 
@@ -203,7 +202,7 @@ Widget build(BuildContext context) {
                 SizedBox(height: 20),
               ],
               ElevatedButton(
-                onPressed: downloadCertificate,
+                onPressed: printCertificate,
                 child: Text('Download PDF'),
               ),
             ],
