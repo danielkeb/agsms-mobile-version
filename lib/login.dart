@@ -4,7 +4,6 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'cert.dart';
-
 class LoginPage extends StatefulWidget {
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -290,11 +289,16 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       FadeInUp(
                         duration: Duration(milliseconds: 2000),
-                        child: Text(
-                          "Forgot Password?",
-                          style: TextStyle(
-                              color: Color(0xFF455A64))),
+                        child: TextButton(
+                        onPressed: () {
+              Navigator.pop(context);
+              Navigator.pushNamed(context, '/forgot');
+            },
+                                            
+         
+                        child: Text('Forgot password'),
                         ),
+                      ),
                        SizedBox(
                         height: 200,
                       ),

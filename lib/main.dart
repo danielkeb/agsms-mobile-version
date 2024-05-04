@@ -1,3 +1,4 @@
+import 'package:abgsms/widgets/forgot.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'login.dart';
@@ -39,6 +40,7 @@ class MyApp extends StatelessWidget {
               'login': (context) => LoginPage(),
               '/about': (context) => About(),
               '/material': (context) => CourseMaterials(),
+              '/forgot': (context) => ForgotPassword(),
             },
             home: Landing(),
           );
