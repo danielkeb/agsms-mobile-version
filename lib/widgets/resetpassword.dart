@@ -5,9 +5,8 @@ import 'dart:convert';
 
 class ResetPassword extends StatefulWidget {
   final String id;
-  final String token;
 
-   ResetPassword({  required this.id, required this.token});
+   ResetPassword({  required this.id});
 
   @override
   State<ResetPassword> createState() => _ResetPasswordState();
@@ -21,7 +20,7 @@ class _ResetPasswordState extends State<ResetPassword> {
     
     try {
       final response = await http.post(
-        Uri.parse('http://localhost:3333/auth/reset/pass/${widget.id}/${widget.token}'),
+        Uri.parse('http://localhost:3333/verify/updatePassword/${widget.id}/'),
         headers: <String, String>{
           'Content-Type': 'application/json',
         },
