@@ -13,7 +13,7 @@ class Shortcode extends StatefulWidget {
 }
 
 class _ShortcodeState extends State<Shortcode> {
-  http.Response? _verificationResponse;
+  http.Response? _shortcodeVerificationResponse;
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _codeController = TextEditingController();
 
@@ -29,27 +29,39 @@ class _ShortcodeState extends State<Shortcode> {
   }
 
   Future<http.Response> _makeVerifyShortcodeRequest(String code, int userId) async {
-    final uri = Uri.parse('http://localhost:3333/verify/shortcode?userId=$userId');
-    final headers = <String, String>{
-      'Content-Type': 'application/json',
-    };
-    final body = jsonEncode(<String, String>{
-      'shortcode': code,
-    });
+    final uri = _createUri(userId);
+    final headers = _createHeaders();
+    final body = _createRequestBody(code);
 
     return await http.post(uri, headers: headers, body: body);
   }
 
+  Uri _createUri(int userId) {
+    return Uri.parse('http://localhost:3333/verify/shortcode/${widget.userId}');
+  }
+
+  Map<String, String> _createHeaders() {
+    return <String, String>{
+      'Content-Type': 'application/json',
+    };
+  }
+
+  String _createRequestBody(String code) {
+    return jsonEncode(<String, String>{
+      'shortcode': code,
+    });
+  }
+
   void _handleSuccessResponse(http.Response response) {
     setState(() {
-      _verificationResponse = response;
+      _shortcodeVerificationResponse = response;
     });
   }
 
   void _handleError(Object error) {
     _showErrorSnackBar('Error: ${error.toString()}');
     setState(() {
-      _verificationResponse = null;
+      _shortcodeVerificationResponse = null;
     });
   }
 
@@ -88,8 +100,9 @@ class _ShortcodeState extends State<Shortcode> {
     );
   }
 
-  Widget _buildVerificationResult() {
-    if (_verificationResponse!= null && _verificationResponse!.statusCode == 200) {
+ Widget _buildVerificationResult() {
+  if (_shortcodeVerificationResponse != null) {
+    if (_shortcodeVerificationResponse!.statusCode == 201) {
       return TextButton(
         onPressed: () {
           Navigator.push(
@@ -99,14 +112,17 @@ class _ShortcodeState extends State<Shortcode> {
             ),
           );
         },
-        child: Text('Verify'),
+        child: Text('Reset Password'),
       );
-    } else if (_verificationResponse!= null) {
-      return Text('Verification failed');
     } else {
-      return Container();
+      // Provide more context about the error
+      return Text('Verification failed: ${_shortcodeVerificationResponse!.reasonPhrase}');
     }
+  } else {
+    return Container(); // Return empty container if response is null
   }
+}
+
 
   @override
   Widget build(BuildContext context) {

@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:abgsms/widgets/shorcode.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;// Assuming the correct import for the Shortcode widget
+import 'package:http/http.dart' as http;
 
 class ForgotPassword extends StatefulWidget {
   const ForgotPassword({Key? key}) : super(key: key);
@@ -13,36 +13,44 @@ class ForgotPassword extends StatefulWidget {
 class _ForgotPasswordState extends State<ForgotPassword> {
   final TextEditingController _emailController = TextEditingController();
 
-  Future<void> sendForgotPasswordRequest(String email) async {
+  Future<void> _sendForgotPasswordRequest(String email) async {
     try {
-      final response = await http.post(
-        Uri.parse('http://localhost:3333/auth/forget/shortcode'),
-        headers: <String, String>{
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode(<String, String>{
-          'email': email,
-        }),
-      );
-
-      if (response.statusCode == 200) {
-        final responseData = json.decode(response.body);
-        final userId = responseData['userId'];
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => Shortcode(userId: userId),
-          ),
-        );
-      } else {
-        final responseData = json.decode(response.body);
-        //final userId = responseData['userId'];
-        _showErrorSnackBar('Failed to send reset code'+ responseData);
-      }
+      final response = await _makeForgotPasswordRequest(email);
+      final forgotPasswordResponse = _parseResponse(response);
+      final userId = forgotPasswordResponse['userId'];
+      _navigateToShortcodePage(userId);
     } catch (e) {
-      print('Error: $e');
-      _showErrorSnackBar('Failed to send reset code');
+      _showErrorSnackBar('Failed to send reset code: $e');
     }
+  }
+
+  Future<http.Response> _makeForgotPasswordRequest(String email) async {
+    final url = 'http://localhost:3333/auth/forget/shortcode';
+    final headers = <String, String>{
+      'Content-Type': 'application/json',
+    };
+    final body = jsonEncode(<String, String>{
+      'email': email,
+    });
+
+    return http.post(Uri.parse(url), headers: headers, body: body);
+  }
+
+  Map<String, dynamic> _parseResponse(http.Response response) {
+    if (response.statusCode == 201) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to send reset code: ${response.statusCode}');
+    }
+  }
+
+  void _navigateToShortcodePage(int userId) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => Shortcode(userId: userId),
+      ),
+    );
   }
 
   void _showErrorSnackBar(String message) {
@@ -86,7 +94,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
               ElevatedButton(
                 onPressed: () {
                   if (_emailController.text.isNotEmpty) {
-                    sendForgotPasswordRequest(_emailController.text);
+                    _sendForgotPasswordRequest(_emailController.text);
                   } else {
                     _showErrorSnackBar('Please enter an email or phone number');
                   }

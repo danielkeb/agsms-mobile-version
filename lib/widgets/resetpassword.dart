@@ -1,31 +1,35 @@
-import 'package:abgsms/login.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:abgsms/login.dart'; // Assuming this is where your LoginPage is located
 
 class ResetPassword extends StatefulWidget {
   final String id;
 
-   ResetPassword({  required this.id});
+  ResetPassword({required this.id});
 
   @override
   State<ResetPassword> createState() => _ResetPasswordState();
 }
 
 class _ResetPasswordState extends State<ResetPassword> {
-  final TextEditingController password1 = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+  final TextEditingController _password1 = TextEditingController();
+  final TextEditingController _password2 = TextEditingController();
 
-  Future<void> resetPassword(BuildContext context) async {
-    String newPassword1 = password1.text.trim();
-    
+  Future<void> _resetPassword(BuildContext context) async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
     try {
-      final response = await http.post(
-        Uri.parse('http://localhost:3333/verify/updatePassword/${widget.id}/'),
+      final response = await http.patch(
+        Uri.parse('http://localhost:3333/verify/updatePassword/${widget.id}'),
         headers: <String, String>{
           'Content-Type': 'application/json',
         },
         body: jsonEncode(<String, String>{
-          'password': newPassword1,
+          'password': _password1.text.trim(),
         }),
       );
 
@@ -36,11 +40,12 @@ class _ResetPasswordState extends State<ResetPassword> {
             duration: const Duration(seconds: 3),
           ),
         );
-        
+
+        // Navigate to the login page
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(
-            builder: (context) => (LoginPage()),
+            builder: (context) => LoginPage(), // Replace with your LoginPage widget
           ),
           (route) => false, // Prevents user from going back to previous screens
         );
@@ -48,6 +53,13 @@ class _ResetPasswordState extends State<ResetPassword> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Reset password failed: Forbidden'),
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${response.statusCode}'),
             duration: const Duration(seconds: 3),
           ),
         );
@@ -67,40 +79,44 @@ class _ResetPasswordState extends State<ResetPassword> {
     return Scaffold(
       appBar: AppBar(title: Text('Reset Password')),
       body: Center(
-        child: Column(
-          children: <Widget>[
-            TextFormField(
-              controller: password1,
-              decoration: InputDecoration(
-                hintText: 'Enter new password',
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: <Widget>[
+              TextFormField(
+                controller: _password1,
+                decoration: InputDecoration(
+                  hintText: 'Enter new password',
+                ),
+                obscureText: true,
+                validator: (value) {
+                  if (value == null || value.isEmpty || value.length < 6) {
+                    return 'Please enter a valid password';
+                  }
+                  return null;
+                },
               ),
-              obscureText: true,
-              validator: (value) {
-                if (value == null || value.isEmpty || value.length < 6) {
-                  return 'Please enter a valid password';
-                }
-                return null;
-              },
-            ),
-            SizedBox(height: 10),
-            TextFormField(
-              decoration: InputDecoration(
-                hintText: 'Confirm password',
+              SizedBox(height: 10),
+              TextFormField(
+                controller: _password2,
+                decoration: InputDecoration(
+                  hintText: 'Confirm password',
+                ),
+                obscureText: true,
+                validator: (value) {
+                  if (value!= _password1.text) {
+                    return 'Passwords do not match';
+                  }
+                  return null;
+                },
               ),
-              obscureText: true,
-              validator: (value) {
-                if (value != password1.text) {
-                  return 'Passwords do not match';
-                }
-                return null;
-              },
-            ),
-            SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: () => resetPassword(context),
-              child: Text('Reset Password'),
-            ),
-          ],
+              SizedBox(height: 10),
+              ElevatedButton(
+                onPressed: () => _resetPassword(context),
+                child: Text('Reset Password'),
+              ),
+            ],
+          ),
         ),
       ),
     );
