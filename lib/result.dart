@@ -104,7 +104,29 @@ class _StudentCertificateState extends State<StudentCertificate> {
     return Scaffold(
       appBar: AppBar(
         title: Center(child: Text('Result card')),
-        backgroundColor: Colors.blueGrey,
+        backgroundColor: const Color.fromARGB(255, 103, 139, 96),
+        actions: [
+            PopupMenuButton(
+              onSelected: (value) {
+                // Handle menu item selection
+                if (value == 'item1') {
+                  // Do something for item 1
+                } else if (value == 'item2') {
+                  // Do something for item 2
+                }
+              },
+              itemBuilder: (BuildContext context) => [
+                const PopupMenuItem(
+                  value: 'item1',
+                  child: Text('Help'),
+                ),
+                const PopupMenuItem(
+                  value: 'item2',
+                  child: Text('About'),
+                ),
+              ],
+            ),
+          ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

@@ -32,7 +32,14 @@ class _StudentCertificateState extends State<StudentCertificate> {
     fetchData();
   }
 
-  
+  Future<void> _logout() async {
+    final AuthManager authManager = AuthManager();
+    authManager.clearToken(); // Clear token from local storage
+
+    // Navigate to login page
+    Navigator.pushReplacementNamed(context, 'login'); // Replace '/login' with your actual login page route
+  }
+
 
   Future<void> fetchData() async {
     try {
@@ -127,7 +134,25 @@ class _StudentCertificateState extends State<StudentCertificate> {
   @override
 Widget build(BuildContext context) {
   return Scaffold(
-    appBar: AppBar(title: Center(child: Text('Result card')),backgroundColor: Colors.blueGrey,),
+    appBar: AppBar(title: Center(child: Text('Result card')),
+    backgroundColor: Colors.blueGrey,
+    actions: [
+          PopupMenuButton(
+            onSelected: (value) {
+              // Handle menu item selection
+              if (value == 'logout') {
+                _logout(); // Call logout function when 'logout' is selected
+              }
+            },
+            itemBuilder: (BuildContext context) => [
+              const PopupMenuItem(
+                value: 'logout',
+                child: Text('Logout'),
+              ),
+            ],
+          ),
+        ],
+    ),
     body: Padding(
       padding: const EdgeInsets.all(16.0),
       child: SingleChildScrollView(

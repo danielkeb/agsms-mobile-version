@@ -63,7 +63,7 @@ class _LoginPageState extends State<LoginPage> {
         MaterialPageRoute(
           builder: (context) => StudentCertificate(),
         ),
-        (route) => true, // Prevents user from going back to previous screens
+        (route) => false, // Prevents user from going back to previous screens
       );
     } else if (response.statusCode == 403) {
       // Show login failed message

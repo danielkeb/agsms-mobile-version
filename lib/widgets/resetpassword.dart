@@ -81,41 +81,45 @@ class _ResetPasswordState extends State<ResetPassword> {
       body: Center(
         child: Form(
           key: _formKey,
-          child: Column(
-            children: <Widget>[
-              TextFormField(
-                controller: _password1,
-                decoration: InputDecoration(
-                  hintText: 'Enter new password',
+          
+          child: Padding(
+            padding: EdgeInsets.all(20),
+            child: Column(
+              children: <Widget>[
+                TextFormField(
+                  controller: _password1,
+                  decoration: InputDecoration(
+                    hintText: 'Enter new password',
+                  ),
+                  obscureText: true,
+                  validator: (value) {
+                    if (value == null || value.isEmpty || value.length < 6) {
+                      return 'Please enter a valid password';
+                    }
+                    return null;
+                  },
                 ),
-                obscureText: true,
-                validator: (value) {
-                  if (value == null || value.isEmpty || value.length < 6) {
-                    return 'Please enter a valid password';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 10),
-              TextFormField(
-                controller: _password2,
-                decoration: InputDecoration(
-                  hintText: 'Confirm password',
+                SizedBox(height: 10),
+                TextFormField(
+                  controller: _password2,
+                  decoration: InputDecoration(
+                    hintText: 'Confirm password',
+                  ),
+                  obscureText: true,
+                  validator: (value) {
+                    if (value!= _password1.text) {
+                      return 'Passwords do not match';
+                    }
+                    return null;
+                  },
                 ),
-                obscureText: true,
-                validator: (value) {
-                  if (value!= _password1.text) {
-                    return 'Passwords do not match';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 10),
-              ElevatedButton(
-                onPressed: () => _resetPassword(context),
-                child: Text('Reset Password'),
-              ),
-            ],
+                SizedBox(height: 10),
+                ElevatedButton(
+                  onPressed: () => _resetPassword(context),
+                  child: Text('Reset Password'),
+                ),
+              ],
+            ),
           ),
         ),
       ),
