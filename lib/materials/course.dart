@@ -115,8 +115,10 @@ class _CourseMaterialsState extends State<CourseMaterials> {
                 ),
                 Expanded(
                   child: Container(
+                    margin: EdgeInsets.only(right: 30),
                     child: TextField(
                       decoration: InputDecoration(
+                        
                         border: OutlineInputBorder(),
                         hintText: 'Filter by keyword (e.g., description, grade, subject)',
                         suffixIcon: Icon(Icons.search),

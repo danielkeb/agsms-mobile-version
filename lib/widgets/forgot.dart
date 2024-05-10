@@ -67,6 +67,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Forgot Password'),
+        backgroundColor: Colors.green,
       ),
       body: Center(
         child: Form(
@@ -76,9 +77,12 @@ class _ForgotPasswordState extends State<ForgotPassword> {
               Container(
                 width: 300,
                 child: TextFormField(
+                  
                   controller: _emailController,
                   autofocus: true,
                   decoration: InputDecoration(
+                        
+                        border: OutlineInputBorder(),
                     hintText: 'Email or phone number',
                   ),
                   validator: (value) {
@@ -91,6 +95,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                   },
                 ),
               ),
+              SizedBox(height: 10,),
               ElevatedButton(
                 onPressed: () {
                   if (_emailController.text.isNotEmpty) {

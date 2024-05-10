@@ -77,7 +77,9 @@ class _ResetPasswordState extends State<ResetPassword> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Reset Password')),
+      appBar: AppBar(title: Text('Reset Password'),
+      backgroundColor: Colors.green,
+      ),
       body: Center(
         child: Form(
           key: _formKey,
@@ -86,9 +88,12 @@ class _ResetPasswordState extends State<ResetPassword> {
             padding: EdgeInsets.all(20),
             child: Column(
               children: <Widget>[
-                TextFormField(
+                Container(
+                  width: 200,
+                  child: TextFormField(
                   controller: _password1,
                   decoration: InputDecoration(
+                    border: OutlineInputBorder(),
                     hintText: 'Enter new password',
                   ),
                   obscureText: true,
@@ -99,24 +104,30 @@ class _ResetPasswordState extends State<ResetPassword> {
                     return null;
                   },
                 ),
+                ),
+                
                 SizedBox(height: 10),
-                TextFormField(
-                  controller: _password2,
-                  decoration: InputDecoration(
-                    hintText: 'Confirm password',
+                Container(
+                  width: 200,
+                  child: TextFormField(
+                    controller: _password2,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      hintText: 'Confirm password',
+                    ),
+                    obscureText: true,
+                    validator: (value) {
+                      if (value!= _password1.text) {
+                        return 'Passwords do not match';
+                      }
+                      return null;
+                    },
                   ),
-                  obscureText: true,
-                  validator: (value) {
-                    if (value!= _password1.text) {
-                      return 'Passwords do not match';
-                    }
-                    return null;
-                  },
                 ),
                 SizedBox(height: 10),
                 ElevatedButton(
                   onPressed: () => _resetPassword(context),
-                  child: Text('Reset Password'),
+                  child: Text('update'),
                 ),
               ],
             ),
