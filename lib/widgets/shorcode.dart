@@ -79,18 +79,23 @@ class _ShortcodeState extends State<Shortcode> {
       key: _formKey,
       child: Column(
         children: [
-          TextFormField(
-            controller: _codeController,
-            decoration: InputDecoration(
-              hintText: 'Enter shortcode',
+          Container(
+            width: 200,
+            child: TextFormField(
+              controller: _codeController,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(),
+                hintText: 'Enter shortcode',
+              ),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter the shortcode';
+                }
+                return null;
+              },
             ),
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Please enter the shortcode';
-              }
-              return null;
-            },
           ),
+          SizedBox(height: 10,),
           ElevatedButton(
             onPressed: _verifyShortcode,
             child: Text('Verify'),
@@ -129,15 +134,18 @@ class _ShortcodeState extends State<Shortcode> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Short code verification'),
+        backgroundColor: Colors.green,
       ),
-      body: Container(
-        width: 300,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            _buildForm(),
-            _buildVerificationResult(),
-          ],
+      body: Center(
+        child: Container(
+          width: 400,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _buildForm(),
+              _buildVerificationResult(),
+            ],
+          ),
         ),
       ),
     );

@@ -40,14 +40,12 @@ class _LoginPageState extends State<LoginPage> {
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> responseData = jsonDecode(response.body);
-      print('Token: ${responseData['access_token']}');
       final storage = FlutterSecureStorage();
       await storage.write(
           key: 'access_token', value: responseData['access_token']);
       final now = DateTime.now();
       final expiryTime = now.add(Duration(minutes: 20));
       await storage.write(key: 'expiryTime', value: expiryTime.toString());
-      print("Expiry time is now " + expiryTime.toString());
 
       // Show login success message
       ScaffoldMessenger.of(context).showSnackBar(
@@ -78,7 +76,7 @@ class _LoginPageState extends State<LoginPage> {
     // Show error message
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Error: $e'),
+        content: Text('unable to connect the internet'),
         duration: const Duration(seconds: 3),
       ),
     );
@@ -107,7 +105,7 @@ class _LoginPageState extends State<LoginPage> {
             shrinkWrap: true,
             children: <Widget>[
               Container(
-                height: 400,
+                height: 200,
                 decoration: BoxDecoration(
                   image: DecorationImage(
                     image: AssetImage('assets/images/background.png'),
@@ -119,7 +117,7 @@ class _LoginPageState extends State<LoginPage> {
                     Positioned(
                       left: 30,
                       width: 80,
-                      height: 200,
+                      height: 100,
                       child: FadeInUp(
                         duration: Duration(seconds: 1),
                         child: Container(
@@ -134,7 +132,7 @@ class _LoginPageState extends State<LoginPage> {
                     Positioned(
                       left: 140,
                       width: 80,
-                      height: 150,
+                      height: 50,
                       child: FadeInUp(
                         duration: Duration(milliseconds: 1200),
                         child: Container(
@@ -150,7 +148,7 @@ class _LoginPageState extends State<LoginPage> {
                       right: 40,
                       top: 40,
                       width: 80,
-                      height: 150,
+                      height: 50,
                       child: FadeInUp(
                         duration: Duration(milliseconds: 1300),
                         child: Container(

@@ -67,7 +67,7 @@ class _ResetPasswordState extends State<ResetPassword> {
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error: $e'),
+          content: Text('check your network connection'),
           duration: const Duration(seconds: 3),
         ),
       );
@@ -86,6 +86,7 @@ class _ResetPasswordState extends State<ResetPassword> {
           
           child: Padding(
             padding: EdgeInsets.all(20),
+            
             child: Column(
               children: <Widget>[
                 Container(

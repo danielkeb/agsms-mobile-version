@@ -20,7 +20,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
       final userId = forgotPasswordResponse['userId'];
       _navigateToShortcodePage(userId);
     } catch (e) {
-      _showErrorSnackBar('Failed to send reset code: $e');
+      _showErrorSnackBar('Failed to send reset code: make sure internet connection');
     }
   }
 
