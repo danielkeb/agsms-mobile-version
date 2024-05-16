@@ -1,4 +1,3 @@
-// import 'package:abgsms/materials/reserv.dart';
 import 'package:abgsms/materials/reserv.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -71,21 +70,33 @@ class _CourseMaterialsState extends State<CourseMaterials> {
       );
     }
   }
-  Future<void> _handleOpenMaterial(String filename, String description) async {
+Future<void> _handleOpenMaterial(String filename, String description) async {
   final url = 'http://localhost:3333/$filename';
-  final response = await http.get(Uri.parse(url));
-  final contentType = response.headers['content-type'];
-  final data = response.bodyBytes;
 
-  if (contentType == 'application/pdf') {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => PdfViewer(data: data, description: description,)),
-    );
-  } else {
-    throw Exception('Invalid content type: $contentType');
+  try {
+    final response = await http.get(Uri.parse(url));
+    if (response.statusCode == 200) {
+      final contentType = response.headers['content-type'];
+      final data = response.bodyBytes;
+
+      if (contentType == 'application/pdf') {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => PdfViewer(data: data, description: description)),
+        );
+      } else {
+        throw Exception('Invalid content type: $contentType');
+      }
+    } else {
+      throw Exception('Failed to fetch PDF: ${response.statusCode}');
+    }
+  } catch (error) {
+    print('Error fetching PDF: $error');
+    // Handle the error appropriately
   }
 }
+
+
 
  
 

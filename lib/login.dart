@@ -63,7 +63,7 @@ class _LoginPageState extends State<LoginPage> {
         ),
         (route) => false, // Prevents user from going back to previous screens
       );
-    } else if (response.statusCode == 403) {
+    } else {
       // Show login failed message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -257,7 +257,7 @@ class _LoginPageState extends State<LoginPage> {
                                     if (value == null || value.isEmpty) {
                                       return 'Please enter your password';
                                     }
-                                    if (value.length < 6) {
+                                    if (value.length <= 4) {
                                       return 'Password must be at least 6 characters long';
                                     }
                                     return null;

@@ -19,11 +19,10 @@ class _StudentCertificateState extends State<StudentCertificate> {
   final GlobalKey<State<StatefulWidget>> containerKey = GlobalKey();
 
 
-  List<int> secondSemesterSubjectAverages = [];
-  int firstSemesterTotal = 0;
-  int secondSemesterTotal = 0;
-  int secondSemesterTotalAverage = 0;
-  int rank = 0;
+  List<dynamic> secondSemesterSubjectAverages = [];
+  dynamic firstSemesterTotal = 0;
+  dynamic secondSemesterTotal = 0;
+  dynamic secondSemesterTotalAverage = 0;
 
 
   @override
@@ -37,7 +36,7 @@ class _StudentCertificateState extends State<StudentCertificate> {
     authManager.clearToken(); // Clear token from local storage
 
     // Navigate to login page
-    Navigator.pushReplacementNamed(context, 'login'); // Replace '/login' with your actual login page route
+    Navigator.pushReplacementNamed(context, '/load'); // Replace '/login page
   }
 
 
@@ -60,6 +59,7 @@ class _StudentCertificateState extends State<StudentCertificate> {
           final data = jsonDecode(response.body);
           setState(() {
             studentData = data;
+            calculateScoresAndRank();
           });
         } else {
           throw Exception('Failed to fetch student data');
@@ -116,7 +116,29 @@ class _StudentCertificateState extends State<StudentCertificate> {
     return pdf.save();
   }
 
+void calculateScoresAndRank() {
+    if (studentData == null) return;
 
+    // Calculate first semester total
+    firstSemesterTotal = studentData!['results'].fold<dynamic>(0, (sum, result) => sum + (result['totalScore1'] ?? 0));
+
+    // Calculate second semester total
+    secondSemesterTotal = studentData!['results'].fold<dynamic>(0, (sum, result) => sum + (result['totalScore2'] ?? 0));
+
+    // Calculate second semester averages
+    secondSemesterSubjectAverages = studentData!['grade']['subject'].map<dynamic>((subject) {
+      final subjectResults = studentData!['results'].where((result) => result['subjectId'] == subject['id']);
+      final totalScore1 = subjectResults.fold<dynamic>(0, (sum, result) => sum + (result['totalScore1'] ?? 0));
+      final totalScore2 = subjectResults.fold<dynamic>(0, (sum, result) => sum + (result['totalScore2'] ?? 0));
+      return (totalScore1 + totalScore2) ~/ 2; // dynamiceger division for average
+    }).toList();
+
+    // Calculate overall average for second semester
+    secondSemesterTotalAverage = (firstSemesterTotal + secondSemesterTotal) ~/ 2;
+
+    // Assign rank (example logic, adjust according to your ranking logic)
+    //rank = studentData!['overallrank'] ?? 0;
+  }
 
   Future<Uint8List?> _captureCertificate() async {
     try {
@@ -163,32 +185,32 @@ Widget build(BuildContext context) {
             children: [
               if (studentData != null) ...[
                 Text(
-                  '${studentData?['school_name'] ?? ''} school',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  '${studentData?['school_name'] ?? ''} School',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.blue),
                 ),
                 SizedBox(height: 10),
                 Text(
-                  'Grade ${studentData?['grade']['grade'] ?? ''} student card',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  'Grade ${studentData?['grade']['grade'] ?? ''} Student Card',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.blue),
                 ),
                 SizedBox(height: 20),
                 Text(
                   'Student Name: ${studentData?['first_name'] ?? ''} ${studentData?['last_name'] ?? ''}',
-                  style: TextStyle(fontSize: 16),
+                  style: TextStyle(fontSize: 18),
                 ),
                 SizedBox(height: 20),
                 SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
+                  scrollDirection: Axis.vertical,
+                  
                   child: DataTable(
                     columns: [
-                      DataColumn(label: Text('Number')),
+                      
                       DataColumn(label: Text('Subject')),
-                      DataColumn(label: Text('First Semester')),
-                      DataColumn(label: Text('Second Semester')),
-                      DataColumn(label: Text('Average Score (Semester Two)')),
+                      DataColumn(label: Text('1st')),
+                      DataColumn(label: Text('2nd')),
+                      DataColumn(label: Text('Average')),
                     ],
-                    rows: List.generate(
-                      studentData?['grade']['subject'].length ?? 0,
+                    rows: List.generate(studentData?['grade']['subject'].length ?? 0,
                       (index) {
                         final subject = studentData?['grade']['subject'][index];
                         final totalScore1 = studentData?['results']
@@ -204,7 +226,6 @@ Widget build(BuildContext context) {
                         final averageScore =
                             (totalScore1 + totalScore2) / 2;
                         return DataRow(cells: [
-                          DataCell(Text('${index + 1}')),
                           DataCell(Text('${subject['name']}')),
                           DataCell(Text('$totalScore1')),
                           DataCell(Text('$totalScore2')),
@@ -215,27 +236,71 @@ Widget build(BuildContext context) {
                   ),
                 ),
                 SizedBox(height: 20),
-                Text(
-                  'Total Score: $firstSemesterTotal (First Semester) | $secondSemesterTotal (Second Semester)',
-                  style: TextStyle(fontSize: 16),
+                Divider(thickness: 1.0,),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    Column(
+                      children: [
+                        Text(
+                          'Total Score',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
+                        SizedBox(height: 5),
+                        Text(
+                          '$firstSemesterTotal',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                        SizedBox(height: 5),
+                        Text(
+                          '$secondSemesterTotal',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                         SizedBox(height: 5),
+                        Text(
+                          '$secondSemesterTotalAverage',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                      ],
+                    ),
+                    Column(
+                      children: [
+                        Text(
+                          'Rank',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
+                        SizedBox(height: 5),
+                        Text(
+                          '${studentData?['firstrank'] ?? ''}',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                        SizedBox(height: 5),
+                        Text(
+                          '${studentData?['secondtrank'] ?? ''}',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                        SizedBox(height: 5),
+                        Text(
+                          '${studentData?['overallrank'] ?? ''}',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-                SizedBox(height: 10),
-                Text(
-                  'Overall Average Score (Semester Two): $secondSemesterTotalAverage',
-                  style: TextStyle(fontSize: 16),
-                ),
-                SizedBox(height: 20),
               ],
-              ElevatedButton(
-                onPressed: printCertificate,
-                child: Text('Download PDF'),
-              ),
+              
             ],
+            
           ),
+          
         ),
       ),
     ),
+    floatingActionButton: FloatingActionButton(onPressed: printCertificate, child: Icon(Icons.save),),
   );
+  
 }
 
 }
+

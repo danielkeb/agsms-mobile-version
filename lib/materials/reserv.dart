@@ -26,9 +26,12 @@ class _PdfViewerState extends State<PdfViewer> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(widget.description),),
-      body: PdfView(
-        scrollDirection: Axis.vertical,
-        controller: _controller,
+      body: Padding(
+        padding: const EdgeInsets.fromLTRB(18.0,2.0,18.0,2.0),
+        child: PdfView(
+          scrollDirection: Axis.vertical,
+          controller: _controller,
+        ),
       ),
     );
   }
