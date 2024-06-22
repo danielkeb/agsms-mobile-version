@@ -14,7 +14,7 @@ class About extends StatelessWidget {
         padding: EdgeInsets.all(20.0),
         child: Column(
         children: <Widget>[
-          Image(image: AssetImage('')),
+          Image(image: AssetImage('assets/images/about.jpeg')),
           Text(
             "Welcome to our School Management System! This system is designed to streamline the management of our school's daily operations, including student enrollment, attendance tracking, grade management, and communication with parents. Our goal is to provide a user-friendly and efficient platform for our administrators, teachers, and students to access important information and resources. We hope you find this system helpful and easy to use.",
             style: TextStyle(fontSize: 18),

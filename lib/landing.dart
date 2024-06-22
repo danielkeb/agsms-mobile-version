@@ -1,35 +1,66 @@
+import 'package:abgsms/cert.dart';
 import 'package:flutter/material.dart';
 import 'widgets/navbar.dart';
 import 'utils/responsiveLayout.dart';
 import 'widgets/search.dart';
+import './authmanager.dart';
 
-class Landing extends StatelessWidget {
+class Landing extends StatefulWidget {
+  @override
+  _LandingState createState() => _LandingState();
+}
+
+class _LandingState extends State<Landing> {
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkToken();
+  }
+
+  Future<void> _checkToken() async {
+    await AuthManager().fetchToken();
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       endDrawer: MyEndDrawer(),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Color(0xFFA5D6A7),
-              Color(0xFF388E3C),
-            ]
-          )
+      body: _isLoading
+          ? Center(child: CircularProgressIndicator())
+          : _shouldRedirect() ? StudentCertificate() : _buildBody(),
+    );
+  }
+
+  bool _shouldRedirect() {
+    return AuthManager().token != null;
+  }
+
+  Widget _buildBody() {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Color(0xFFA5D6A7),
+            Color(0xFF388E3C),
+          ],
         ),
-        child: SingleChildScrollView(
-          child: Column(
-            children: <Widget>[
-              NavBar(),
-              Body(),
-            ],
-          ),
+      ),
+      child: SingleChildScrollView(
+        child: Column(
+          children: <Widget>[
+            NavBar(),
+            Body(),
+          ],
         ),
       ),
     );
   }
 }
-
 class Body extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -196,25 +227,6 @@ class MyEndDrawer extends StatelessWidget {
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.end,
-              // children: const [
-              //   SizedBox(height: 16),
-              //   Text(
-              //     'Daniel kebede',
-              //     style: TextStyle(
-              //       fontSize: 15,
-              //       fontWeight: FontWeight.bold,
-              //       color: Colors.white,
-              //     ),
-              //   ),
-              //   SizedBox(height: 8),
-              //   Text(
-              //     'dkklearningservice.com',
-              //     style: TextStyle(
-              //       fontSize: 14,
-              //       color: Colors.white,
-              //     ),
-              //   ),
-              // ],
             ),
           ),
           ListTile(

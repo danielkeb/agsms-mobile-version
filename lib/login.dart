@@ -257,9 +257,9 @@ class _LoginPageState extends State<LoginPage> {
                                     if (value == null || value.isEmpty) {
                                       return 'Please enter your password';
                                     }
-                                    if (value.length <= 4) {
-                                      return 'Password must be at least 6 characters long';
-                                    }
+                                    // if (value.length <= 4) {
+                                    //   return 'Password must be at least 6 characters long';
+                                    // }
                                     return null;
                                   },
                                 ),

@@ -112,6 +112,7 @@ Future<void> _handleOpenMaterial(String filename, String description) async {
       appBar: AppBar(
         title: Text("Course Materials"),
         backgroundColor: Colors.green,
+        titleTextStyle: TextStyle(color: Colors.white),
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -156,6 +157,7 @@ Future<void> _handleOpenMaterial(String filename, String description) async {
                         print('filename is null');
                       }
                     },
+                    trailing: Icon(Icons.open_in_browser),
                   );
                 },
               ),

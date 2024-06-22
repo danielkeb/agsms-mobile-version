@@ -18,12 +18,10 @@ class _StudentCertificateState extends State<StudentCertificate> {
 
   final GlobalKey<State<StatefulWidget>> containerKey = GlobalKey();
 
-
   List<dynamic> secondSemesterSubjectAverages = [];
   dynamic firstSemesterTotal = 0;
   dynamic secondSemesterTotal = 0;
   dynamic secondSemesterTotalAverage = 0;
-
 
   @override
   void initState() {
@@ -39,7 +37,6 @@ class _StudentCertificateState extends State<StudentCertificate> {
     Navigator.pushReplacementNamed(context, '/load'); // Replace '/login page
   }
 
-
   Future<void> fetchData() async {
     try {
       final AuthManager authManager = AuthManager();
@@ -47,8 +44,15 @@ class _StudentCertificateState extends State<StudentCertificate> {
 
       final String? token = authManager.token;
       final Map<String, dynamic>? decodedToken = authManager.decodedToken;
+      //final String role= decodedToken.role;
+  if (decodedToken != null && decodedToken['role'] != "student") {
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => UnauthorizedPage()));
+      return; // Exit the function to avoid further execution
+    }
+      else{
 
       if (token != null && decodedToken != null) {
+        
         final response = await http.get(
           Uri.parse('http://localhost:3333/students/get/${decodedToken['sub']}'),
           headers: {
@@ -66,6 +70,7 @@ class _StudentCertificateState extends State<StudentCertificate> {
         }
       } else {
         throw Exception('Token not found');
+      }
       }
     } catch (error) {
       print('Error fetching student data: $error');
@@ -116,28 +121,34 @@ class _StudentCertificateState extends State<StudentCertificate> {
     return pdf.save();
   }
 
-void calculateScoresAndRank() {
-    if (studentData == null) return;
+  void calculateScoresAndRank() {
+    if (studentData == null ||
+        studentData!['results'] == null ||
+        studentData!['grade'] == null ||
+        studentData!['grade']['subject'] == null) return;
 
     // Calculate first semester total
-    firstSemesterTotal = studentData!['results'].fold<dynamic>(0, (sum, result) => sum + (result['totalScore1'] ?? 0));
+    firstSemesterTotal = studentData!['results']
+        .fold<dynamic>(0, (sum, result) => sum + (result['totalScore1'] ?? 0));
 
     // Calculate second semester total
-    secondSemesterTotal = studentData!['results'].fold<dynamic>(0, (sum, result) => sum + (result['totalScore2'] ?? 0));
+    secondSemesterTotal = studentData!['results']
+        .fold<dynamic>(0, (sum, result) => sum + (result['totalScore2'] ?? 0));
 
     // Calculate second semester averages
-    secondSemesterSubjectAverages = studentData!['grade']['subject'].map<dynamic>((subject) {
-      final subjectResults = studentData!['results'].where((result) => result['subjectId'] == subject['id']);
-      final totalScore1 = subjectResults.fold<dynamic>(0, (sum, result) => sum + (result['totalScore1'] ?? 0));
-      final totalScore2 = subjectResults.fold<dynamic>(0, (sum, result) => sum + (result['totalScore2'] ?? 0));
-      return (totalScore1 + totalScore2) ~/ 2; // dynamiceger division for average
+    secondSemesterSubjectAverages = studentData!['grade']['subject']
+        .map<dynamic>((subject) {
+      final subjectResults = studentData!['results']
+          .where((result) => result['subjectId'] == subject['id']);
+      final totalScore1 = subjectResults.fold<dynamic>(
+          0, (sum, result) => sum + (result['totalScore1'] ?? 0));
+      final totalScore2 = subjectResults.fold<dynamic>(
+          0, (sum, result) => sum + (result['totalScore2'] ?? 0));
+      return (totalScore1 + totalScore2) ~/ 2; // Integer division for average
     }).toList();
 
     // Calculate overall average for second semester
     secondSemesterTotalAverage = (firstSemesterTotal + secondSemesterTotal) ~/ 2;
-
-    // Assign rank (example logic, adjust according to your ranking logic)
-    //rank = studentData!['overallrank'] ?? 0;
   }
 
   Future<Uint8List?> _captureCertificate() async {
@@ -154,11 +165,15 @@ void calculateScoresAndRank() {
   }
 
   @override
-Widget build(BuildContext context) {
-  return Scaffold(
-    appBar: AppBar(title: Center(child: Text('Result card')),
-    backgroundColor: Colors.blueGrey,
-    actions: [
+  Widget build(BuildContext context) {
+    final hasRank = studentData?['firstrank'] != null || studentData?['secondtrank'] != null || studentData?['overallrank'] != null;
+    
+    return Scaffold(
+      appBar: AppBar(
+        title: Center(child: Text('Result card')),
+        backgroundColor: Colors.green,
+        titleTextStyle:TextStyle(color: Colors.white),
+        actions: [
           PopupMenuButton(
             onSelected: (value) {
               // Handle menu item selection
@@ -174,133 +189,196 @@ Widget build(BuildContext context) {
             ],
           ),
         ],
-    ),
-    body: Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: SingleChildScrollView(
-        child: RepaintBoundary(
-          key: containerKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              if (studentData != null) ...[
-                Text(
-                  '${studentData?['school_name'] ?? ''} School',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.blue),
-                ),
-                SizedBox(height: 10),
-                Text(
-                  'Grade ${studentData?['grade']['grade'] ?? ''} Student Card',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.blue),
-                ),
-                SizedBox(height: 20),
-                Text(
-                  'Student Name: ${studentData?['first_name'] ?? ''} ${studentData?['last_name'] ?? ''}',
-                  style: TextStyle(fontSize: 18),
-                ),
-                SizedBox(height: 20),
-                SingleChildScrollView(
-                  scrollDirection: Axis.vertical,
-                  
-                  child: DataTable(
-                    columns: [
-                      
-                      DataColumn(label: Text('Subject')),
-                      DataColumn(label: Text('1st')),
-                      DataColumn(label: Text('2nd')),
-                      DataColumn(label: Text('Average')),
-                    ],
-                    rows: List.generate(studentData?['grade']['subject'].length ?? 0,
-                      (index) {
-                        final subject = studentData?['grade']['subject'][index];
-                        final totalScore1 = studentData?['results']
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: SingleChildScrollView(
+          child: RepaintBoundary(
+            key: containerKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                if (studentData != null && hasRank) ...[
+                  Text(
+                    '${studentData?['school_name'] ?? ''} School',
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.blue),
+                  ),
+                  SizedBox(height: 10),
+                  Text(
+                    'Grade ${studentData?['grade']['grade'] ?? ''} Student Card',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.blue),
+                  ),
+                  SizedBox(height: 20),
+                  Text(
+                    'Student Name: ${studentData?['first_name'] ?? ''} ${studentData?['last_name'] ?? ''}',
+                    style: TextStyle(fontSize: 18),
+                  ),
+                  SizedBox(height: 20),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.vertical,
+                    child: DataTable(
+                      columns: [
+                        DataColumn(label: Text('Subject')),
+                        DataColumn(label: Text('1st')),
+                        DataColumn(label: Text('2nd')),
+                        DataColumn(label: Text('Average')),
+                      ],
+                      rows: List.generate(studentData?['grade']['subject']?.length ?? 0, (index) {
+                        final subject = studentData!['grade']['subject'][index];
+                        final totalScore1 = studentData!['results']
                             .firstWhere(
                               (result) => result['subjectId'] == subject['id'],
                               orElse: () => {'totalScore1': 0},
-                            )['totalScore1'];
-                        final totalScore2 = studentData?['results']
+                            )['totalScore1'] ?? 0;
+                        final totalScore2 = studentData!['results']
                             .firstWhere(
                               (result) => result['subjectId'] == subject['id'],
                               orElse: () => {'totalScore2': 0},
-                            )['totalScore2'];
-                        final averageScore =
-                            (totalScore1 + totalScore2) / 2;
+                            )['totalScore2'] ?? 0;
+                        final averageScore = (totalScore1 + totalScore2) / 2;
                         return DataRow(cells: [
                           DataCell(Text('${subject['name']}')),
                           DataCell(Text('$totalScore1')),
                           DataCell(Text('$totalScore2')),
                           DataCell(Text('$averageScore')),
                         ]);
-                      },
+                      }),
                     ),
                   ),
+                  SizedBox(height: 20),
+                  Divider(thickness: 1.0,),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget>[
+                      Column(
+                        children: [
+                          Text(
+                            'Total Score',
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
+                          SizedBox(height: 5),
+                          Text(
+                            '$firstSemesterTotal',
+                            style: TextStyle(fontSize: 16),
+                          ),
+                          SizedBox(height: 5),
+                          Text(
+                            '$secondSemesterTotal',
+                            style: TextStyle(fontSize: 16),
+                          ),
+                          SizedBox(height: 5),
+                          Text(
+                            '$secondSemesterTotalAverage',
+                            style: TextStyle(fontSize: 16),
+                          ),
+                        ],
+                      ),
+                      Column(
+                        children: [
+                          Text(
+                            'Rank',
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
+                          SizedBox(height: 5),
+                          Text(
+                            '${studentData?['firstrank'] ?? ''}',
+                            style: TextStyle(fontSize: 16),
+                          ),
+                          SizedBox(height: 5),
+                          Text(
+                            '${studentData?['secondtrank'] ?? ''}',
+                            style: TextStyle(fontSize: 16),
+                          ),
+                          SizedBox(height: 5),
+                          Text(
+                            '${studentData?['overallrank'] ?? ''}',
+                            style: TextStyle(fontSize: 16),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ] else ...[
+                  Center(
+               child:  Column(
+              children: [
+                Container(
+                  child: Image(
+                    image: AssetImage('assets/images/clock.png'),
+                    width: 200,
+                    height: 200,
+                  ),
                 ),
-                SizedBox(height: 20),
-                Divider(thickness: 1.0,),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: <Widget>[
-                    Column(
-                      children: [
-                        Text(
-                          'Total Score',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                        ),
-                        SizedBox(height: 5),
-                        Text(
-                          '$firstSemesterTotal',
-                          style: TextStyle(fontSize: 16),
-                        ),
-                        SizedBox(height: 5),
-                        Text(
-                          '$secondSemesterTotal',
-                          style: TextStyle(fontSize: 16),
-                        ),
-                         SizedBox(height: 5),
-                        Text(
-                          '$secondSemesterTotalAverage',
-                          style: TextStyle(fontSize: 16),
-                        ),
-                      ],
-                    ),
-                    Column(
-                      children: [
-                        Text(
-                          'Rank',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                        ),
-                        SizedBox(height: 5),
-                        Text(
-                          '${studentData?['firstrank'] ?? ''}',
-                          style: TextStyle(fontSize: 16),
-                        ),
-                        SizedBox(height: 5),
-                        Text(
-                          '${studentData?['secondtrank'] ?? ''}',
-                          style: TextStyle(fontSize: 16),
-                        ),
-                        SizedBox(height: 5),
-                        Text(
-                          '${studentData?['overallrank'] ?? ''}',
-                          style: TextStyle(fontSize: 16),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+                Text('No certificate Available')
               ],
-              
-            ],
-            
+              ),
+                  ),
+                ],
+              ],
+            ),
           ),
-          
         ),
       ),
-    ),
-    floatingActionButton: FloatingActionButton(onPressed: printCertificate, child: Icon(Icons.save),),
-  );
-  
+      floatingActionButton: hasRank
+          ? FloatingActionButton(
+              onPressed: printCertificate,
+              child: Icon(Icons.save),
+            )
+          : null,
+    );
+  }
 }
 
+class UnauthorizedPage extends StatefulWidget {
+  @override
+  State<UnauthorizedPage> createState() => _UnauthorizedPageState();
 }
 
+class _UnauthorizedPageState extends State<UnauthorizedPage> {
+    Future<void> _logout() async {
+    final AuthManager authManager = AuthManager();
+    authManager.clearToken(); // Clear token from local storage
+
+    // Navigate to login page
+    Navigator.pushReplacementNamed(context, '/load'); // Replace '/login page
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Center(child: Text('Unauthorized Access')),
+        backgroundColor: Colors.red, 
+        actions: [
+          PopupMenuButton(
+            onSelected: (value) {
+              // Handle menu item selection
+              if (value == 'logout') {
+                _logout(); // Call logout function when 'logout' is selected
+              }
+            },
+            itemBuilder: (BuildContext context) => [
+              const PopupMenuItem(
+                value: 'logout',
+                child: Text('Logout'),
+              ),
+            ],
+          ),
+        ],// Example color
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset('assets/images/unauth.jpg', width: 200, height: 200,),
+            Text(
+              'You have no privilege to access this page',
+              style: TextStyle(fontSize: 18),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

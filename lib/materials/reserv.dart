@@ -25,7 +25,9 @@ class _PdfViewerState extends State<PdfViewer> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(widget.description),),
+      appBar: AppBar(title: Text(widget.description),
+      backgroundColor: Colors.green,
+      titleTextStyle: TextStyle(color:Colors.white),),
       body: Padding(
         padding: const EdgeInsets.fromLTRB(18.0,2.0,18.0,2.0),
         child: PdfView(
